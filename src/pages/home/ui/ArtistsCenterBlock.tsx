@@ -6,9 +6,10 @@ export default function ArtistsCenterBlock() {
     <Box
       sx={{
         display: "flex",
-        flexDirection: { xs: "column", sm: "row" },
+        flexDirection: { md: "column", xs: "column", lg: "row" },
         gap: "20px",
-        alignItems: { xs: "center", sm: "flex-end" },
+        alignItems: "center",
+        justifyContent: 'center'
       }}
     >
       <Box sx={{ width: { xs: "70%", sm: "auto" }, flex: { sm: "0 0 auto" } }}>
@@ -34,9 +35,8 @@ export default function ArtistsCenterBlock() {
           src="/artists/kanye_west.jpg"
           alt="kanye west"
           sx={{
-            height: "300px",
-            width: "100%",
-            objectFit: { xs: "contain", md: "fill" },
+            width: { lg: '66%', md: '44%', },
+            margin: "0 auto",
             display: "block",
           }}
         />

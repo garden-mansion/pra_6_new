@@ -1,4 +1,6 @@
-import { AppBar, Box, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import { useState } from "react";
 
 const navItems = [
   { label: "Главная", href: "#", active: true },
@@ -7,6 +9,16 @@ const navItems = [
 ];
 
 export default function Header() {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <AppBar
       position="sticky"
@@ -31,15 +43,15 @@ export default function Header() {
           src="/logo.svg"
           alt="logo"
           sx={{
-            height: "2em",
-            display: { xs: "none", sm: "block" },
+            height: "1rem",
+            display: 'block',
           }}
         />
 
         <Box
           component="nav"
           sx={{
-            display: "flex",
+            display: { xs: "none", sm: "flex" },
             flexDirection: "row",
             backgroundColor: "#272a3f",
             ml: "auto",
@@ -74,6 +86,66 @@ export default function Header() {
             </Typography>
           ))}
         </Box>
+
+        <Box sx={{ display: { xs: "block", sm: "none" }, ml: "auto" }}>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={handleMenuOpen}
+            sx={{ color: "whitesmoke" }}
+          >
+            <MenuIcon />
+          </IconButton>
+        </Box>
+
+        <Menu
+          anchorEl={anchorEl}
+          anchorReference="anchorPosition"
+          anchorPosition={{ top: 0, left: 0 }}
+          open={!!anchorEl}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+          sx={{
+            "& .MuiPaper-root": {
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              margin: 0,
+              borderRadius: 0,
+              backgroundColor: "#272a3f",
+              color: "whitesmoke",
+              boxShadow: "none",
+            },
+          }}
+        >
+          {navItems.map((item) => (
+            <MenuItem
+              key={item.label}
+              onClick={handleMenuClose}
+              component="a"
+              href={item.href}
+              sx={{
+                fontFamily: "Helvetica, Arial, sans-serif",
+                backgroundColor: item.active ? "#f27022" : "transparent",
+                "&:hover": {
+                  backgroundColor: item.active ? "#f27022" : "#3a3f5c",
+                },
+              }}
+            >
+              {item.label}
+            </MenuItem>
+          ))}
+        </Menu>
       </Toolbar>
     </AppBar>
   );
