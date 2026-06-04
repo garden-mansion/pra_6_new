@@ -1,9 +1,10 @@
 import { AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 
 const navItems = [
-  { label: "Главная", href: "#", active: true },
+  { label: "Главная", to: "/", active: true },
   { label: "Чарт", href: "#", active: false },
   { label: "Артист месяца", href: "#", active: false },
 ];
@@ -60,8 +61,8 @@ export default function Header() {
           {navItems.map((item, index) => (
             <Typography
               key={item.label}
-              component="a"
-              href={item.href}
+              component={"to" in item ? RouterLink : "a"}
+              {...("to" in item ? { to: item.to } : { href: item.href })}
               sx={{
                 color: "whitesmoke",
                 textDecoration: "none",
@@ -132,8 +133,8 @@ export default function Header() {
             <MenuItem
               key={item.label}
               onClick={handleMenuClose}
-              component="a"
-              href={item.href}
+              component={"to" in item ? RouterLink : "a"}
+              {...("to" in item ? { to: item.to } : { href: item.href })}
               sx={{
                 fontFamily: "Helvetica, Arial, sans-serif",
                 backgroundColor: item.active ? "#f27022" : "transparent",

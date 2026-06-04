@@ -1,9 +1,10 @@
 import { Box } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const images = [
-  { src: "/artists/greyrock.jpg", alt: "greyrock" },
-  { src: "/artists/madk1d.jpg", alt: "madk1d" },
-  { src: "/artists/fortuna_812_2.png", alt: "fortuna 812" },
+  { src: "/artists/greyrock.jpg", alt: "greyrock", slug: "greyrock" },
+  { src: "/artists/madk1d.jpg", alt: "madk1d", slug: "madk1d" },
+  { src: "/artists/fortuna_812_2.png", alt: "fortuna 812", slug: "fortuna-812" },
 ];
 
 export default function Gallery() {
@@ -19,17 +20,25 @@ export default function Gallery() {
       }}
     >
       {images.map((img) => (
-        <Box
+        <Link
           key={img.alt}
-          component="img"
-          src={img.src}
-          alt={img.alt}
-          sx={{
-            width: { xs: "70%", sm: "100%" },
-            display: "block",
-            mx: { xs: "auto", sm: 0 },
-          }}
-        />
+          to={`/article/${img.slug}`}
+          style={{ textDecoration: "none", display: "block" }}
+        >
+          <Box
+            component="img"
+            src={img.src}
+            alt={img.alt}
+            sx={{
+              width: { xs: "70%", sm: "100%" },
+              display: "block",
+              mx: { xs: "auto", sm: 0 },
+              cursor: "pointer",
+              transition: "opacity 0.2s",
+              "&:hover": { opacity: 0.8 },
+            }}
+          />
+        </Link>
       ))}
     </Box>
   );
