@@ -5,7 +5,7 @@ import { Link as RouterLink } from "react-router-dom";
 
 const navItems = [
   { label: "Главная", to: "/", active: true },
-  { label: "Чарт", href: "#", active: false },
+  { label: "Чарт", to: "/albums", active: false },
   { label: "Артист месяца", href: "#", active: false },
 ];
 

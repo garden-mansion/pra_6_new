@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "../shared/ui/Layout";
 import { HomePage } from "../pages/home";
 import { ArticlePage } from "../pages/article";
+import { AlbumsPage } from "../pages/albums";
 
 export default function App() {
   return (
@@ -10,6 +11,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="article/:slug" element={<ArticlePage />} />
+          <Route path="albums" element={<AlbumsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
