@@ -14,8 +14,12 @@ import {
   Select,
   MenuItem,
   InputLabel,
+  ThemeProvider,
+  createTheme,
 } from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material/Select";
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { ruRU } from "@mui/x-data-grid/locales";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { albums } from "../../../app/tableData";
@@ -44,27 +48,39 @@ const COLORS = [
   "#1abc9c",
 ];
 
+function formatNumber(n: number): string {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+function groupAlbums(xKey: XKey, keys: YKey[]) {
+  const map: Record<string, Record<string, number>> = {};
+
+  albums.forEach((item) => {
+    const xVal = String(item[xKey]);
+    if (!map[xVal]) map[xVal] = {};
+    keys.forEach((key) => {
+      map[xVal][key] = (map[xVal][key] || 0) + Number(item[key]);
+    });
+  });
+
+  return Object.entries(map).map(([group, vals]) => ({
+    id: group,
+    group,
+    ...vals,
+  }));
+}
+
+const darkTheme = createTheme({
+  palette: { mode: "dark" },
+});
+
 export const ChartPage: FC = () => {
   const [xKey, setXKey] = useState<XKey>("artist");
   const [yKeys, setYKeys] = useState<YKey[]>(["rhymesImages"]);
   const [chartType, setChartType] = useState<"bar" | "line">("bar");
 
-  const dataset = useMemo(() => {
-    const map: Record<string, Record<string, number>> = {};
-
-    albums.forEach((item) => {
-      const xVal = String(item[xKey]);
-      if (!map[xVal]) map[xVal] = {};
-      yKeys.forEach((key) => {
-        map[xVal][key] = (map[xVal][key] || 0) + Number(item[key]);
-      });
-    });
-
-    return Object.entries(map).map(([group, vals]) => ({
-      group,
-      ...vals,
-    }));
-  }, [xKey, yKeys]);
+  const dataset = useMemo(() => groupAlbums(xKey, yKeys), [xKey, yKeys]);
+  const fullDataset = useMemo(() => groupAlbums(xKey, yOptions), [xKey]);
 
   const toggleYKey = (key: YKey) => {
     setYKeys((prev) =>
@@ -84,6 +100,17 @@ export const ChartPage: FC = () => {
     setXKey(event.target.value as XKey);
   };
 
+  const tableColumns: GridColDef[] = [
+    { field: "group", headerName: columnLabels[xKey], flex: 1 },
+    ...yOptions.map((key) => ({
+      field: key,
+      headerName: columnLabels[key],
+      flex: 1,
+      type: "number" as const,
+      valueFormatter: (value: number) => formatNumber(value),
+    })),
+  ];
+
   return (
     <Box sx={{ color: "white" }}>
       <Typography variant="h4" sx={{ mb: 3, fontWeight: 600 }}>
@@ -91,19 +118,14 @@ export const ChartPage: FC = () => {
       </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>Группировать по</InputLabel>
-          <Select
+        <Select
             value={xKey}
-            color='white'
             label="Группировать по"
             onChange={handleXChange}
             sx={{
               color: "white",
               ".MuiOutlinedInput-notchedOutline": { borderColor: "gray" },
               ".MuiSvgIcon-root": { color: "white" },
-              ".MuiFormLabelRoot":  { color: "white" },
-              ".MuiFormLabel-root": { color:  "white" },
             }}
           >
             {xOptions.map((key) => (
@@ -112,7 +134,6 @@ export const ChartPage: FC = () => {
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
       </Box>
 
       <Stack
@@ -217,6 +238,36 @@ export const ChartPage: FC = () => {
           )}
         </Box>
       )}
+
+      <Box sx={{ mt: 4, height: 500 }}>
+        <ThemeProvider theme={darkTheme}>
+          <DataGrid
+            rows={fullDataset}
+            columns={tableColumns}
+            localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+            disableRowSelectionOnClick
+            sx={{
+              backgroundColor: "#1e1e2e",
+              border: "none",
+              color: "white",
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: "#121420",
+                color: "white",
+                fontWeight: 600,
+              },
+              "& .MuiDataGrid-row:hover": {
+                backgroundColor: "#2a2a3e",
+              },
+              "& .MuiDataGrid-cell": {
+                color: "white",
+              },
+              "& .MuiTablePagination-root": {
+                color: "white",
+              },
+            }}
+          />
+        </ThemeProvider>
+      </Box>
     </Box>
   );
 };
