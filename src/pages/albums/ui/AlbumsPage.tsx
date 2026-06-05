@@ -2,7 +2,6 @@ import type { FC } from "react";
 import { Box, Typography, createTheme, ThemeProvider, GlobalStyles } from "@mui/material";
 import {
   DataGrid,
-  GridToolbar,
   type GridColDef,
 } from "@mui/x-data-grid";
 import { ruRU } from "@mui/x-data-grid/locales";

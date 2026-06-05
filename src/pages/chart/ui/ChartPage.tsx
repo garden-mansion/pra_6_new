@@ -2,16 +2,20 @@ import { useState, useMemo } from "react";
 import type { FC } from "react";
 import {
   Box,
-  Paper,
   Typography,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Radio,
-  RadioGroup,
   FormControl,
   FormLabel,
+  FormControlLabel,
+  Checkbox,
+  RadioGroup,
+  Radio,
+  Stack,
+  Divider,
+  Select,
+  MenuItem,
+  InputLabel,
 } from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material/Select";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { albums } from "../../../app/tableData";
@@ -20,7 +24,6 @@ import { columnLabels } from "../../albums/lib/columnLabels";
 
 type XKey = "albumName" | "artist" | "genre" | "country";
 type YKey = Exclude<keyof TAlbum, XKey>;
-type ChartType = "bar" | "line";
 
 const xOptions: XKey[] = ["albumName", "artist", "genre", "country"];
 const yOptions: YKey[] = [
@@ -41,38 +44,27 @@ const COLORS = [
   "#1abc9c",
 ];
 
-function prepareChartData(
-  data: TAlbum[],
-  xKey: XKey,
-  yKeys: YKey[],
-): { categories: string[]; series: { data: number[]; label: string; color: string }[] } {
-  const map: Record<string, Record<string, number>> = {};
-
-  data.forEach((item) => {
-    const xVal = String(item[xKey]);
-    if (!map[xVal]) {
-      map[xVal] = {};
-    }
-    yKeys.forEach((key) => {
-      map[xVal][key] = (map[xVal][key] || 0) + Number(item[key]);
-    });
-  });
-
-  const entries = Object.entries(map);
-  const categories = entries.map(([name]) => name);
-  const series = yKeys.map((key, idx) => ({
-    data: entries.map(([, vals]) => vals[key] || 0),
-    label: columnLabels[key],
-    color: COLORS[idx % COLORS.length],
-  }));
-
-  return { categories, series };
-}
-
 export const ChartPage: FC = () => {
   const [xKey, setXKey] = useState<XKey>("artist");
   const [yKeys, setYKeys] = useState<YKey[]>(["rhymesImages"]);
-  const [chartType, setChartType] = useState<ChartType>("bar");
+  const [chartType, setChartType] = useState<"bar" | "line">("bar");
+
+  const dataset = useMemo(() => {
+    const map: Record<string, Record<string, number>> = {};
+
+    albums.forEach((item) => {
+      const xVal = String(item[xKey]);
+      if (!map[xVal]) map[xVal] = {};
+      yKeys.forEach((key) => {
+        map[xVal][key] = (map[xVal][key] || 0) + Number(item[key]);
+      });
+    });
+
+    return Object.entries(map).map(([group, vals]) => ({
+      group,
+      ...vals,
+    }));
+  }, [xKey, yKeys]);
 
   const toggleYKey = (key: YKey) => {
     setYKeys((prev) =>
@@ -80,12 +72,17 @@ export const ChartPage: FC = () => {
     );
   };
 
-  const { categories, series } = useMemo(
-    () => (yKeys.length === 0 ? { categories: [], series: [] } : prepareChartData(albums, xKey, yKeys)),
-    [xKey, yKeys],
-  );
+  const series = yKeys.map((key, idx) => ({
+    dataKey: key,
+    label: columnLabels[key],
+    color: COLORS[idx % COLORS.length],
+  }));
 
+  const showBarLabel = chartType === "bar" && series.length === 1;
 
+  const handleXChange = (event: SelectChangeEvent) => {
+    setXKey(event.target.value as XKey);
+  };
 
   return (
     <Box sx={{ color: "white" }}>
@@ -93,102 +90,103 @@ export const ChartPage: FC = () => {
         Диаграмма
       </Typography>
 
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 3 }}>
-        <Paper sx={{ p: 2, flex: "1 1 280px", backgroundColor: "#1e1e2e" }}>
-          <FormControl component="fieldset">
-            <FormLabel sx={{ color: "white", mb: 1 }}>
-              Ось X (группировка)
-            </FormLabel>
-            <RadioGroup
-              value={xKey}
-              onChange={(e) => setXKey(e.target.value as XKey)}
-            >
-              {xOptions.map((key) => (
-                <FormControlLabel
-                  key={key}
-                  value={key}
-                  control={<Radio sx={{ color: "gray", "&.Mui-checked": { color: "#f27022" } }} />}
-                  label={columnLabels[key]}
-                  sx={{ color: "white" }}
-                />
-              ))}
-            </RadioGroup>
-          </FormControl>
-        </Paper>
-
-        <Paper sx={{ p: 2, flex: "1 1 280px", backgroundColor: "#1e1e2e" }}>
-          <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600, color: "white" }}>
-            Ось Y (значения)
-          </Typography>
-          <FormGroup>
-            {yOptions.map((key) => (
-              <FormControlLabel
-                key={key}
-                control={
-                  <Checkbox
-                    checked={yKeys.includes(key)}
-                    onChange={() => toggleYKey(key)}
-                    sx={{ color: "gray", "&.Mui-checked": { color: "#f27022" } }}
-                  />
-                }
-                label={columnLabels[key]}
-                sx={{ color: "white", "& .MuiTypography-root": { fontSize: "0.85em" } }}
-              />
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>Группировать по</InputLabel>
+          <Select
+            value={xKey}
+            color='white'
+            label="Группировать по"
+            onChange={handleXChange}
+            sx={{
+              color: "white",
+              ".MuiOutlinedInput-notchedOutline": { borderColor: "gray" },
+              ".MuiSvgIcon-root": { color: "white" },
+              ".MuiFormLabelRoot":  { color: "white" },
+              ".MuiFormLabel-root": { color:  "white" },
+            }}
+          >
+            {xOptions.map((key) => (
+              <MenuItem key={key} value={key}>
+                {columnLabels[key]}
+              </MenuItem>
             ))}
-          </FormGroup>
-        </Paper>
-
-        <Paper sx={{ p: 2, flex: "1 1 280px", backgroundColor: "#1e1e2e" }}>
-          <FormControl component="fieldset">
-            <FormLabel sx={{ color: "white", mb: 1 }}>
-              Тип диаграммы
-            </FormLabel>
-            <RadioGroup
-              value={chartType}
-              onChange={(e) => setChartType(e.target.value as ChartType)}
-            >
-              <FormControlLabel
-                value="bar"
-                control={<Radio sx={{ color: "gray", "&.Mui-checked": { color: "#f27022" } }} />}
-                label="Гистограмма"
-                sx={{ color: "white" }}
-              />
-              <FormControlLabel
-                value="line"
-                control={<Radio sx={{ color: "gray", "&.Mui-checked": { color: "#f27022" } }} />}
-                label="Линейная"
-                sx={{ color: "white" }}
-              />
-            </RadioGroup>
-          </FormControl>
-        </Paper>
+          </Select>
+        </FormControl>
       </Box>
 
-      {categories.length > 0 && series.length > 0 ? (
-        <Paper sx={{ p: 2, backgroundColor: "#1e1e2e" }}>
+      <Stack
+        direction="row"
+        divider={<Divider orientation="vertical" flexItem sx={{ borderColor: "gray" }} />}
+        spacing={3}
+        sx={{ mb: 3, justifyContent: "center", flexWrap: "wrap" }}
+      >
+        <FormControl>
+          <FormLabel sx={{ color: "white", mb: 1 }}>Тип диаграммы</FormLabel>
+          <RadioGroup
+            value={chartType}
+            onChange={(e) => setChartType(e.target.value as "bar" | "line")}
+          >
+            <FormControlLabel
+              value="bar"
+              control={<Radio sx={{ color: "gray", "&.Mui-checked": { color: "#f27022" } }} />}
+              label="Гистограмма"
+              sx={{ color: "white" }}
+            />
+            <FormControlLabel
+              value="line"
+              control={<Radio sx={{ color: "gray", "&.Mui-checked": { color: "#f27022" } }} />}
+              label="Линейная"
+              sx={{ color: "white" }}
+            />
+          </RadioGroup>
+        </FormControl>
+
+        <FormControl>
+          <FormLabel sx={{ color: "white", mb: 1 }}>На диаграмме показать</FormLabel>
+          {yOptions.map((key) => (
+            <FormControlLabel
+              key={key}
+              control={
+                <Checkbox
+                  checked={yKeys.includes(key)}
+                  onChange={() => toggleYKey(key)}
+                  sx={{ color: "gray", "&.Mui-checked": { color: "#f27022" } }}
+                />
+              }
+              label={columnLabels[key]}
+              sx={{ color: "white", "& .MuiTypography-root": { fontSize: "0.85em" } }}
+            />
+          ))}
+        </FormControl>
+      </Stack>
+
+      {yKeys.length === 0 ? (
+        <Typography sx={{ color: "gray", textAlign: "center", py: 4 }}>
+          Выберите хотя бы одно значение для оси Y
+        </Typography>
+      ) : (
+        <Box sx={{ backgroundColor: "#1e1e2e", p: 2, borderRadius: 1 }}>
           {chartType === "bar" ? (
             <BarChart
-              xAxis={[
-                {
-                  scaleType: "band",
-                  data: categories,
-                  tickLabelStyle: { fill: "#fff", fontSize: 11 },
-                },
-              ]}
+              dataset={dataset}
+              xAxis={[{ scaleType: "band", dataKey: "group", tickLabelStyle: { fill: "#fff", fontSize: 11 } }]}
               yAxis={[{ tickLabelStyle: { fill: "#fff" } }]}
-              series={series.map((s) => ({
-                ...s,
-                barLabel: series.length === 1 ? "value" : undefined,
-                valueFormatter: (v: number | null) =>
-                  v !== null ? v.toLocaleString() : "",
-              }))}
+              series={
+                showBarLabel
+                  ? series.map((s) => ({
+                      ...s,
+                      barLabel: (v) => (v !== null ? `${v.value}` : ""),
+                    }))
+                  : series
+              }
               slotProps={{
                 legend: {
                   direction: "horizontal",
                   position: { vertical: "bottom", horizontal: "center" },
                   sx: { color: "white" },
                 },
-                barLabel: series.length === 1
+                barLabel: showBarLabel
                   ? { style: { fill: "white", fontSize: 11, fontWeight: "bold" as const } }
                   : undefined,
               }}
@@ -198,19 +196,12 @@ export const ChartPage: FC = () => {
             />
           ) : (
             <LineChart
-              xAxis={[
-                {
-                  scaleType: "band",
-                  data: categories,
-                  tickLabelStyle: { fill: "#fff", fontSize: 11 },
-                },
-              ]}
+              dataset={dataset}
+              xAxis={[{ scaleType: "band", dataKey: "group", tickLabelStyle: { fill: "#fff", fontSize: 11 } }]}
               yAxis={[{ tickLabelStyle: { fill: "#fff" } }]}
               series={series.map((s) => ({
                 ...s,
                 showMark: true,
-                valueFormatter: (v: number | null) =>
-                  v !== null ? v.toLocaleString() : "",
               }))}
               slotProps={{
                 legend: {
@@ -224,13 +215,7 @@ export const ChartPage: FC = () => {
               margin={{ top: 20, right: 20, left: 60, bottom: 60 }}
             />
           )}
-        </Paper>
-      ) : (
-        <Typography sx={{ color: "gray", textAlign: "center", py: 4 }}>
-          {yKeys.length === 0
-            ? "Выберите хотя бы одно значение для оси Y"
-            : "Нет данных"}
-        </Typography>
+        </Box>
       )}
     </Box>
   );
