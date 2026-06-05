@@ -1,16 +1,24 @@
 import { AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 
 const navItems = [
-  { label: "Главная", to: "/", active: true },
-  { label: "Чарт", to: "/albums", active: false },
-  { label: "Диаграмма", to: "/chart", active: false },
+  { label: "Главная", to: "/" },
+  { label: "Чарт", to: "/albums" },
+  { label: "Диаграмма", to: "/chart" },
 ];
 
 export default function Header() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const location = useLocation();
+
+  const isActive = (item: typeof navItems[number]) => {
+    if (item.to === "/") {
+      return location.pathname === "/" || location.pathname.startsWith("/article/");
+    }
+    return location.pathname === item.to;
+  };
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -72,14 +80,14 @@ export default function Header() {
                 px: "20px",
                 py: "5px",
                 display: "inline-block",
-                backgroundColor: item.active ? "#f27022" : "transparent",
+                backgroundColor: isActive(item) ? "#f27022" : "transparent",
                 borderRight:
                   index < navItems.length - 1
                     ? "1px solid whitesmoke"
                     : "none",
                 whiteSpace: "nowrap",
                 "&:hover": {
-                  backgroundColor: item.active ? "#f27022" : "#3a3f5c",
+                  backgroundColor: isActive(item) ? "#f27022" : "#3a3f5c",
                 },
               }}
             >
@@ -137,9 +145,9 @@ export default function Header() {
               to={item.to}
               sx={{
                 fontFamily: "Helvetica, Arial, sans-serif",
-                backgroundColor: item.active ? "#f27022" : "transparent",
+                backgroundColor: isActive(item) ? "#f27022" : "transparent",
                 "&:hover": {
-                  backgroundColor: item.active ? "#f27022" : "#3a3f5c",
+                  backgroundColor: isActive(item) ? "#f27022" : "#3a3f5c",
                 },
               }}
             >
