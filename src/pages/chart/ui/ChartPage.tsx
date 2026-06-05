@@ -24,8 +24,6 @@ type ChartType = "bar" | "line";
 
 const xOptions: XKey[] = ["albumName", "artist", "genre", "country"];
 const yOptions: YKey[] = [
-  "yandexMusicPlays",
-  "soundcloudPlays",
   "rhymesImages",
   "structureRhythm",
   "styleImplementation",
@@ -73,7 +71,7 @@ function prepareChartData(
 
 export const ChartPage: FC = () => {
   const [xKey, setXKey] = useState<XKey>("artist");
-  const [yKeys, setYKeys] = useState<YKey[]>(["yandexMusicPlays", "soundcloudPlays"]);
+  const [yKeys, setYKeys] = useState<YKey[]>(["rhymesImages"]);
   const [chartType, setChartType] = useState<ChartType>("bar");
 
   const toggleYKey = (key: YKey) => {

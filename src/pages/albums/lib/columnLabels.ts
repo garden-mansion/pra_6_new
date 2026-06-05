@@ -5,8 +5,7 @@ export const columnLabels: Record<keyof TAlbum, string> = {
   artist: "Исполнитель",
   genre: "Жанр",
   country: "Страна",
-  yandexMusicPlays: "Прослушивания (Яндекс.Музыка)",
-  soundcloudPlays: "Прослушивания (SoundCloud)",
+
   rhymesImages: "Рифмы/Образы",
   structureRhythm: "Структура/Ритм",
   styleImplementation: "Реализация стиля",
