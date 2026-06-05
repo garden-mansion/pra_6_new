@@ -6,7 +6,7 @@ import { Link as RouterLink } from "react-router-dom";
 const navItems = [
   { label: "Главная", to: "/", active: true },
   { label: "Чарт", to: "/albums", active: false },
-  { label: "Артист месяца", href: "#", active: false },
+  { label: "Диаграмма", to: "/chart", active: false },
 ];
 
 export default function Header() {
@@ -61,8 +61,8 @@ export default function Header() {
           {navItems.map((item, index) => (
             <Typography
               key={item.label}
-              component={"to" in item ? RouterLink : "a"}
-              {...("to" in item ? { to: item.to } : { href: item.href })}
+              component={RouterLink}
+              to={item.to}
               sx={{
                 color: "whitesmoke",
                 textDecoration: "none",
@@ -133,8 +133,8 @@ export default function Header() {
             <MenuItem
               key={item.label}
               onClick={handleMenuClose}
-              component={"to" in item ? RouterLink : "a"}
-              {...("to" in item ? { to: item.to } : { href: item.href })}
+              component={RouterLink}
+              to={item.to}
               sx={{
                 fontFamily: "Helvetica, Arial, sans-serif",
                 backgroundColor: item.active ? "#f27022" : "transparent",

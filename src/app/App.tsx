@@ -3,6 +3,7 @@ import { Layout } from "../shared/ui/Layout";
 import { HomePage } from "../pages/home";
 import { ArticlePage } from "../pages/article";
 import { AlbumsPage } from "../pages/albums";
+import { ChartPage } from "../pages/chart";
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
           <Route index element={<HomePage />} />
           <Route path="article/:slug" element={<ArticlePage />} />
           <Route path="albums" element={<AlbumsPage />} />
+          <Route path="chart" element={<ChartPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

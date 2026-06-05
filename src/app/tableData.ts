@@ -617,7 +617,7 @@ const albums: TAlbum[] = [
     genre: "гранж;рок",
     country: "Россия",
     yandexMusicPlays: 165686,
-    soundcloudPlays: 37354,
+    soundcloudPlays: 177354,
     rhymesImages: 10,
     structureRhythm: 0,
     styleImplementation: 8,
